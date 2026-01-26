@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { AppProvider } from "./context/context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} w-[100vw] h-[100vh] bg-background`}>
-        {children}
+        <AppProvider>{children}</AppProvider>
       </body>
     </html>
   );

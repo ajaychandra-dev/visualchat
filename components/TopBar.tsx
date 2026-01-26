@@ -1,4 +1,4 @@
-import Logo from "./Branding";
+import Logo from "./LogoComp";
 import Signup from "./Signup";
 
 export default function TopBar() {

@@ -1,12 +1,16 @@
 @import "tailwindcss";
 
+@plugin 'tailwind-scrollbar';
+
 @theme {
   --color-background: #030303;
   --color-nodebg: #232326;
   --color-input: #fafaff;
   --color-placeholder: #7f7f86;
   --color-inputfocus: #454545;
-  --color-nodebg-focus: #343436;
+  --color-button-focus: #343436;
+  --color-node-selected: #9f9f9f;
+  --color-node-header: #343436;
 }
 
 @layer base {
