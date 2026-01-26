@@ -6,15 +6,18 @@ import "./globals.css";
 
 export default function Home() {
   return (
-    <div className="flex flex-col justify-between h-full w-full pointer-events-none relative">
-      <ReactFlowProvider>
-        <Graph />
-      </ReactFlowProvider>
+    <>
+      <div className="flex flex-col justify-between h-full w-full relative">
+        <ReactFlowProvider>
+          <Graph />
+        </ReactFlowProvider>
 
-      <div className="flex flex-col justify-between h-full w-full absolute">
-        <TopBar />
-        <Input />
+        {/* Overlay div, ignores pointer events */}
+        <div className="flex flex-col justify-between h-full w-full absolute pointer-events-none">
+          <TopBar />
+          <Input />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

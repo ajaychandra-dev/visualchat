@@ -50,7 +50,7 @@ export default function Graph() {
   );
 
   return (
-    <>
+    <div className="h-full w-full">
       <svg style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
           <marker
@@ -83,6 +83,6 @@ export default function Graph() {
           size={2}
         />
       </ReactFlow>
-    </>
+    </div>
   );
 }
