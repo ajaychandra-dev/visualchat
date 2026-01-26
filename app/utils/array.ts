@@ -1,2 +1,2 @@
-export const isNonEmptyArray = (arr: unknown): arr is any[] =>
+export const isNonEmptyArray = <T>(arr: unknown): arr is T[] =>
   Array.isArray(arr) && arr.length > 0;

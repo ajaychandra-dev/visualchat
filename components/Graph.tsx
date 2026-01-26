@@ -41,12 +41,12 @@ export default function Graph() {
     if (nodes.length >= 2) {
       fitView();
     }
-  }, [nodes.length]);
+  }, [nodes.length, fitView]);
 
   const onNodesChange = useCallback(
     (changes: any) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-    []
+    [],
   );
 
   return (
