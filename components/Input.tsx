@@ -1,20 +1,32 @@
 "use client";
 
-import { createNodeRequest } from "@/app/api/createNode";
+import { addNodeToFlow, createFlow } from "@/app/api/createNode";
 import { useAppContext } from "@/app/context/context";
 import clsx from "clsx";
 import { useRef, useState } from "react";
-import ArrowUpIcon from "./icons/arrow_up";
+import ArrowUpIcon from "./icons/ArrowUp";
 
 export default function Input() {
-  const { data, setData } = useAppContext();
   const [value, setValue] = useState("");
   const [focus, setFocus] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { setEdges, setNodes, nodes } = useAppContext();
 
   const handleSubmit = () => {
-    const response = createNodeRequest(value, data?.nodes.length || 0);
-    setData(response);
+    if (nodes.length === 0) {
+      const flow = createFlow();
+
+      setNodes(flow.nodes);
+      setEdges(flow.edges);
+      setValue("");
+      // return;
+    }
+
+    const { node, edge } = addNodeToFlow(value, "Mock AI response");
+
+    setNodes((prev) => [...prev, node]);
+    if (edge) setEdges((prev) => [...prev, edge]);
+
     setValue("");
     if (inputRef.current) {
       inputRef.current?.focus();
@@ -46,7 +58,7 @@ export default function Input() {
     <form
       className={clsx(
         "w-[600px] max-h-[238px] overflow-auto self-center mb-12 bg-nodebg rounded-lg p-3 flex flex-col gap-3 border flex-shrink-0 pointer-events-auto",
-        focus ? " border-inputfocus" : "border-transparent"
+        focus ? " border-inputfocus" : "border-transparent",
       )}
       onSubmit={(e) => {
         e.preventDefault();
@@ -63,7 +75,7 @@ export default function Input() {
           setFocus(false);
         }}
         name="prompt-input"
-        className="placeholder-placeholder caret-input text-input w-full focus:outline-none resize-none pr-4"
+        className="placeholder-placeholder caret-input text-input w-full focus:outline-none resize-none pr-4 overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
         style={{ height: "1lh" }}
         placeholder="Type your message"
         onChange={(e) => {
@@ -77,8 +89,8 @@ export default function Input() {
       <button
         type="submit"
         className={clsx(
-          "p-1 rounded-sm self-end",
-          value ? "bg-input" : "bg-placeholder"
+          "p-1 rounded-sm self-end cursor-pointer",
+          value ? "bg-input" : "bg-placeholder",
         )}
       >
         <ArrowUpIcon />

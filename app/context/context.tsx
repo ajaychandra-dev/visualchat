@@ -1,41 +1,39 @@
 "use client";
 
-import React, { createContext, ReactNode, useContext, useState } from "react";
-
-interface Response {
-  id: string;
-  name: string;
-  nodes: {
-    id: string;
-    type: string;
-    position: {
-      x: number;
-      y: number;
-    };
-    data: {
-      question: string;
-      answer: string;
-    };
-  }[];
-  edges: {
-    id: string;
-    source: string;
-    target: string;
-  }[];
-}
+import { Edge } from "@xyflow/react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { getFlow } from "../api/createNode";
+import { Node } from "../api/types";
 
 type AppContextType = {
-  data: Response | null;
-  setData: React.Dispatch<React.SetStateAction<Response | null>>;
+  nodes: Node[];
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  edges: Edge[];
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [data, setData] = useState<Response | null>(null);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+
+  useEffect(() => {
+    const flow = getFlow();
+    if (!flow) return;
+
+    setNodes(flow.nodes);
+    setEdges(flow.edges);
+  }, []);
 
   return (
-    <AppContext.Provider value={{ data, setData }}>
+    <AppContext.Provider value={{ nodes, setNodes, edges, setEdges }}>
       {children}
     </AppContext.Provider>
   );

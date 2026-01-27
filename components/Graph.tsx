@@ -1,19 +1,18 @@
 "use client";
 
+import { updateNodePosition } from "@/app/api/createNode";
 import { useAppContext } from "@/app/context/context";
-import { isNonEmptyArray } from "@/app/utils/array";
 import {
   applyNodeChanges,
   Background,
   BackgroundVariant,
+  OnNodeDrag,
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import BaseNode from "./BaseNode";
-
-const initialEdges = [{ id: "n1-n2", source: "n1", target: "n2" }];
 
 const nodeTypes = {
   BaseNode: BaseNode,
@@ -21,25 +20,22 @@ const nodeTypes = {
 
 export default function Graph() {
   const { fitView } = useReactFlow();
-  const { data } = useAppContext();
-  const [nodes, setNodes] = useState(data?.nodes ?? []);
-  const [edges, setEdges] = useState(initialEdges);
+  const { nodes, setNodes, edges } = useAppContext();
 
   useEffect(() => {
-    if (data === null) {
-      return;
-    }
-    if (isNonEmptyArray(data.nodes)) {
-      setNodes(data.nodes);
-      if (isNonEmptyArray(data.edges)) {
-        setEdges(data.edges);
-      }
-    }
-  }, [data]);
+    if (!nodes.length) return;
 
-  useEffect(() => {
-    if (nodes.length >= 2) {
-      fitView();
+    const padding = { top: 0.2, right: 0.2, bottom: 0.75, left: 0.2 };
+
+    if (nodes.length <= 3) {
+      fitView({ padding });
+    } else {
+      const lastThreeNodes = nodes.slice(-3);
+
+      fitView({
+        nodes: lastThreeNodes,
+        padding,
+      });
     }
   }, [nodes.length, fitView]);
 
@@ -48,6 +44,10 @@ export default function Graph() {
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
+
+  const onNodeDragStop: OnNodeDrag = (_event, node) => {
+    updateNodePosition(node.id, node.position);
+  };
 
   return (
     <div className="h-full w-full">
@@ -75,6 +75,8 @@ export default function Graph() {
         onNodesChange={onNodesChange}
         fitView
         edgesFocusable={false}
+        minZoom={0.2}
+        onNodeDragStop={onNodeDragStop}
       >
         <Background
           variant={BackgroundVariant.Dots}
