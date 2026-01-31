@@ -1,12 +1,11 @@
 "use client";
 
-import { updateNodePosition } from "@/app/api/createNode";
 import { useAppContext } from "@/app/context/context";
+import { useFitView } from "@/hooks/useFitView";
 import {
   applyNodeChanges,
   Background,
   BackgroundVariant,
-  OnNodeDrag,
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
@@ -21,6 +20,7 @@ const nodeTypes = {
 export default function Graph() {
   const { fitView } = useReactFlow();
   const { nodes, setNodes, edges } = useAppContext();
+  useFitView();
 
   useEffect(() => {
     if (!nodes.length) return;
@@ -29,25 +29,39 @@ export default function Graph() {
 
     if (nodes.length <= 3) {
       fitView({ padding });
-    } else {
-      const lastThreeNodes = nodes.slice(-3);
-
-      fitView({
-        nodes: lastThreeNodes,
-        padding,
-      });
+      return;
     }
-  }, [nodes.length, fitView]);
+
+    const selectedNode = nodes.find((node) => node.selected);
+
+    if (!selectedNode) {
+      // No selection - fall back to showing all
+      fitView({ padding });
+      return;
+    }
+
+    // Find the parent node by looking for the edge that points TO the selected node
+    const parentEdge = edges.find((edge) => edge.target === selectedNode.id);
+
+    if (!parentEdge) {
+      // Selected node is a root node (no parent) - just show it
+      fitView({ nodes: [selectedNode], padding });
+      return;
+    }
+
+    // Find the actual parent node using the edge's source
+    const parentNode = nodes.find((node) => node.id === parentEdge.source);
+
+    const nodesToFit = parentNode ? [parentNode, selectedNode] : [selectedNode];
+
+    fitView({ nodes: nodesToFit, padding });
+  }, [nodes.length, edges, fitView]); // Added edges to dependencies
 
   const onNodesChange = useCallback(
     (changes: any) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
-
-  const onNodeDragStop: OnNodeDrag = (_event, node) => {
-    updateNodePosition(node.id, node.position);
-  };
 
   return (
     <div className="h-full w-full">
@@ -76,7 +90,8 @@ export default function Graph() {
         fitView
         edgesFocusable={false}
         minZoom={0.2}
-        onNodeDragStop={onNodeDragStop}
+        nodesDraggable={false}
+        nodesConnectable={false}
       >
         <Background
           variant={BackgroundVariant.Dots}

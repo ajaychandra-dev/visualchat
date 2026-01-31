@@ -6,6 +6,7 @@ export type Node = {
     question: string;
     answer: string;
   };
+  selected?: boolean;
 };
 
 export type Edge = {

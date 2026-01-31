@@ -1,104 +1,89 @@
 import { Edge, Flow, Node } from "./types";
-const NODE_GAP = 320; // reduce spacing
-
-export const BASE_FLOW: Flow = {
-  id: "",
-  name: "My Flow",
-  nodes: [],
-  edges: [],
-};
-
-const FLOW_KEY = "visual-chat-flow";
-
-const loadFlow = (): Flow | null => {
-  const raw = localStorage.getItem(FLOW_KEY);
-  return raw ? JSON.parse(raw) : null;
-};
-
-const saveFlow = (flow: Flow) => {
-  localStorage.setItem(FLOW_KEY, JSON.stringify(flow));
-};
+let FLOWID = "DUMMY_FLOW";
+const NODE_GAP = 320;
 
 const generateId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-export const getFlow = (): Flow | null => {
-  return loadFlow();
+const loadFlow = (flowId: string): Flow | null => {
+  const raw = localStorage.getItem(FLOWID);
+  return raw ? JSON.parse(raw) : null;
 };
 
-export const createFlow = (): Flow => {
+const saveFlow = (flowId: string, flow: Flow) => {
+  localStorage.setItem(FLOWID, JSON.stringify(flow));
+};
+
+export const getFlow = (flowId: string): Flow | null => {
+  return loadFlow(FLOWID);
+};
+
+// POST /flows
+export const createFlow = () => {
+  const flowId = generateId();
   const flow: Flow = {
-    ...BASE_FLOW,
-    id: generateId(),
+    id: FLOWID,
+    name: flowId,
     nodes: [],
     edges: [],
   };
 
-  saveFlow(flow);
-  return flow;
+  saveFlow(FLOWID, flow);
+  return FLOWID;
 };
 
 // POST /flows/:id/nodes
 export const addNodeToFlow = (
-  question: string,
-  answer: string,
-): { node: Node; edge?: Edge } => {
-  const flow = loadFlow();
+  flowId: string,
+  parentNodeId: string | null,
+  data: { question: string; answer: string },
+): { node: Node; edge: Edge | null } => {
+  const flow = loadFlow(flowId);
   if (!flow) throw new Error("Flow not found");
 
-  const nodeId = flow.nodes.length + 1;
-  const prevId = nodeId - 1;
+  const currentNodeId = String(Date.now());
 
-  const lastNode = flow.nodes[flow.nodes.length - 1];
-
-  const node: Node = {
-    id: String(nodeId),
+  const currentNode: Node = {
+    id: String(currentNodeId),
     type: "BaseNode",
-    position: {
-      x: lastNode ? lastNode.position.x + NODE_GAP : 0,
-      y: lastNode ? lastNode.position.y : 0,
-    },
-    data: { question, answer },
+    position: { x: 0, y: 0 },
+    data,
   };
-
-  flow.nodes.push(node);
-
-  let edge: Edge | undefined;
-
-  if (prevId >= 1) {
-    edge = {
-      id: `${prevId}-${nodeId}`,
-      source: String(prevId),
-      target: String(nodeId),
+  flow.nodes.push(currentNode);
+  let currentEdge: Edge | null = null;
+  if (parentNodeId) {
+    currentEdge = {
+      id: `${parentNodeId}-${currentNodeId}`,
+      source: String(parentNodeId),
+      target: String(currentNodeId),
       markerStart: "circle",
       markerEnd: "circle",
       type: "smoothstep",
       style: { stroke: "#7f7f86", strokeWidth: 1 },
     };
-
-    flow.edges.push(edge);
+    flow.edges.push(currentEdge);
   }
 
-  saveFlow(flow);
+  saveFlow(flowId, flow);
 
-  return { node, edge };
+  return { node: currentNode, edge: currentEdge };
 };
 
 // PATCH /nodes/:id
-export const updateNodePosition = (
-  nodeId: string,
-  position: { x: number; y: number },
-) => {
-  const flow = loadFlow();
-  if (!flow) return;
+// export const updateNodePosition = (
+//   nodeId: string,
+//   position: { x: number; y: number },
+// ) => {
+//   const flow = loadFlow();
+//   if (!flow) return;
 
-  const node = flow.nodes.find((n) => n.id === nodeId);
-  if (!node) return;
+//   const node = flow.nodes.find((n) => n.id === nodeId);
+//   if (!node) return;
 
-  node.position = position;
+//   node.position = position;
 
-  saveFlow(flow);
-};
+//   saveFlow(flow);
+// };
 export const STEPS = [
   {
     question: "What can you do?",
