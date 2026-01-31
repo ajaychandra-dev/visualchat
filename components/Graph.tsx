@@ -1,17 +1,15 @@
 "use client";
 
-import { updateNodePosition } from "@/app/api/createNode";
 import { useAppContext } from "@/app/context/context";
 import {
   applyNodeChanges,
   Background,
   BackgroundVariant,
-  OnNodeDrag,
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import BaseNode from "./BaseNode";
 
 const nodeTypes = {
@@ -22,32 +20,28 @@ export default function Graph() {
   const { fitView } = useReactFlow();
   const { nodes, setNodes, edges } = useAppContext();
 
-  useEffect(() => {
-    if (!nodes.length) return;
+  // useEffect(() => {
+  //   if (!nodes.length) return;
 
-    const padding = { top: 0.2, right: 0.2, bottom: 0.75, left: 0.2 };
+  //   const padding = { top: 0.2, right: 0.2, bottom: 0.75, left: 0.2 };
 
-    if (nodes.length <= 3) {
-      fitView({ padding });
-    } else {
-      const lastThreeNodes = nodes.slice(-3);
+  //   if (nodes.length <= 3) {
+  //     fitView({ padding });
+  //   } else {
+  //     const lastThreeNodes = nodes.slice(-3);
 
-      fitView({
-        nodes: lastThreeNodes,
-        padding,
-      });
-    }
-  }, [nodes.length, fitView]);
+  //     fitView({
+  //       nodes: lastThreeNodes,
+  //       padding,
+  //     });
+  //   }
+  // }, [nodes.length, fitView]);
 
   const onNodesChange = useCallback(
     (changes: any) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
-
-  const onNodeDragStop: OnNodeDrag = (_event, node) => {
-    updateNodePosition(node.id, node.position);
-  };
 
   return (
     <div className="h-full w-full">
@@ -76,7 +70,6 @@ export default function Graph() {
         fitView
         edgesFocusable={false}
         minZoom={0.2}
-        onNodeDragStop={onNodeDragStop}
       >
         <Background
           variant={BackgroundVariant.Dots}

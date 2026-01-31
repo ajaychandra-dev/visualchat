@@ -11,18 +11,22 @@ export default function Input() {
   const [focus, setFocus] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { setEdges, setNodes, nodes } = useAppContext();
+  const [flowId, setFlowId] = useState("");
 
   const handleSubmit = () => {
+    let createdFlowId: string | null = null;
     if (nodes.length === 0) {
-      const flow = createFlow();
-
-      setNodes(flow.nodes);
-      setEdges(flow.edges);
+      createdFlowId = createFlow();
+      setFlowId(createdFlowId);
+      // setFlowId(createFlow());
+      // flowId = createFlow();
       setValue("");
-      // return;
     }
 
-    const { node, edge } = addNodeToFlow(value, "Mock AI response");
+    const { node, edge } = addNodeToFlow(createdFlowId || flowId, {
+      question: value,
+      answer: "Mock AI response",
+    });
 
     setNodes((prev) => [...prev, node]);
     if (edge) setEdges((prev) => [...prev, edge]);
