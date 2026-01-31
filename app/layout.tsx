@@ -7,12 +7,6 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-// TODO: Add metadata
-// export const metadata: Metadata = {
-//   title: "Visual Chat",
-//   description: "AI Visual Chat",
-// };
-
 export default function RootLayout({
   children,
 }: Readonly<{

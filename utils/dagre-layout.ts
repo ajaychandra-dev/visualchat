@@ -9,14 +9,13 @@ const getLayoutedElements = (
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-  const nodeWidth = 300; // Adjust based on your node width
-  const nodeHeight = 200; // Adjust based on your node height
+  const nodeWidth = 400; // Adjust based on your node width
+  const nodeHeight = 350; // Adjust based on your node height
 
   dagreGraph.setGraph({
     rankdir: direction,
-    nodesep: 20, // Horizontal spacing between nodes
-    ranksep: 0, // Vertical spacing between ranks
-    // ranker: "longest-path",
+    nodesep: 80, // Vertical spacing between nodes
+    ranksep: 140, // Horizontal spacing between ranks
   });
 
   nodes.forEach((node) => {

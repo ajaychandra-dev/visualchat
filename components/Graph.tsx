@@ -89,7 +89,8 @@ export default function Graph() {
         onNodesChange={onNodesChange}
         fitView
         edgesFocusable={false}
-        minZoom={0.2}
+        minZoom={0.25}
+        maxZoom={1.75}
         nodesDraggable={false}
         nodesConnectable={false}
       >

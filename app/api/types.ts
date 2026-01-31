@@ -7,6 +7,7 @@ export type Node = {
     answer: string;
   };
   selected?: boolean;
+  measured?: { width?: number; height?: number };
 };
 
 export type Edge = {

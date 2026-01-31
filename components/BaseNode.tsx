@@ -1,5 +1,6 @@
 import { Handle, Position } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useRef } from "react";
 import CopyIcon from "./icons/CopyIcon";
 import DeleteIcon from "./icons/DeleteIcon";
 import FullScreenIcon from "./icons/FullScreenIcon";
@@ -11,6 +12,34 @@ interface BaseNodeProps {
 }
 
 export default function BaseNode({ data, selected }: BaseNodeProps) {
+  const contentRef = useRef<HTMLParagraphElement>(null);
+  const questionRef = useRef<HTMLParagraphElement>(null); // ✅ Add ref for question
+
+  const handleWheel = (e: React.WheelEvent) => {
+    const element = e.currentTarget as HTMLElement;
+    if (!element) return;
+
+    const hasVerticalScroll = element.scrollHeight > element.clientHeight;
+
+    if (!hasVerticalScroll) {
+      return;
+    }
+
+    const isScrollingDown = e.deltaY > 0;
+    const isScrollingUp = e.deltaY < 0;
+
+    const atTop = element.scrollTop === 0;
+    const atBottom =
+      Math.abs(
+        element.scrollTop + element.clientHeight - element.scrollHeight,
+      ) < 1;
+
+    if ((isScrollingDown && !atBottom) || (isScrollingUp && !atTop)) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  };
+
   const actions = [
     {
       id: "1",
@@ -37,6 +66,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
       onClick: () => console.log("Delete Node"),
     },
   ];
+
   return (
     <div
       className={`relative bg-nodebg rounded-lg max-w-[400px] border transition-colors ${
@@ -55,7 +85,6 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
               >
                 {action.src}
               </button>
-
               <span
                 className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 
                 whitespace-nowrap rounded-md bg-black px-2 py-1 text-[10px] text-white 
@@ -71,19 +100,29 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
         type="source"
         position={Position.Right}
         isConnectable={false}
-        style={{ opacity: 0 }}
+        style={{ opacity: 0, top: "20px" }}
       />
       <Handle
         type="target"
         position={Position.Left}
         isConnectable={false}
-        style={{ opacity: 0 }}
+        style={{ opacity: 0, top: "20px" }}
       />
-      <p className="p-3 text-input font-bold text-xs bg-node-header rounded-t-lg">
-        {data.question}
-      </p>
-
-      <p className="text-input text-xs p-4 max-h-[25vh] overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent">
+      <div className="bg-node-header rounded-t-lg p-3 max-h-[90px] overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent">
+        <p
+          ref={questionRef}
+          onWheelCapture={handleWheel}
+          className="text-input font-bold text-xs"
+        >
+          {data.question}
+        </p>
+      </div>
+      <p
+        ref={contentRef}
+        onWheelCapture={handleWheel}
+        className="text-input text-xs p-4 max-h-[350px] overflow-auto 
+        scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
+      >
         {data.answer.split("\n").map((line, index) => (
           <span key={index}>
             {line}
