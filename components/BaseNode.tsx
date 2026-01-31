@@ -13,31 +13,12 @@ interface BaseNodeProps {
 
 export default function BaseNode({ data, selected }: BaseNodeProps) {
   const contentRef = useRef<HTMLParagraphElement>(null);
-  const questionRef = useRef<HTMLParagraphElement>(null); // ✅ Add ref for question
+  const questionRef = useRef<HTMLParagraphElement>(null);
 
   const handleWheel = (e: React.WheelEvent) => {
-    const element = e.currentTarget as HTMLElement;
-    if (!element) return;
-
-    const hasVerticalScroll = element.scrollHeight > element.clientHeight;
-
-    if (!hasVerticalScroll) {
-      return;
-    }
-
-    const isScrollingDown = e.deltaY > 0;
-    const isScrollingUp = e.deltaY < 0;
-
-    const atTop = element.scrollTop === 0;
-    const atBottom =
-      Math.abs(
-        element.scrollTop + element.clientHeight - element.scrollHeight,
-      ) < 1;
-
-    if ((isScrollingDown && !atBottom) || (isScrollingUp && !atTop)) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    if (e.metaKey || e.ctrlKey) return;
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const actions = [
@@ -45,7 +26,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
       id: "1",
       label: "Regenerate",
       src: <RefetchIcon />,
-      onClick: () => console.log("Refetch"),
+      onClick: () => console.log("Regenerate"),
     },
     {
       id: "2",

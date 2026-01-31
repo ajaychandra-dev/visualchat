@@ -21,6 +21,7 @@ export default function Graph() {
   const { fitView } = useReactFlow();
   const { nodes, setNodes, edges } = useAppContext();
   useFitView();
+  // useKeyboardNavigation();
 
   useEffect(() => {
     if (!nodes.length) return;
@@ -89,7 +90,7 @@ export default function Graph() {
         onNodesChange={onNodesChange}
         fitView
         edgesFocusable={false}
-        minZoom={0.25}
+        minZoom={0.3}
         maxZoom={1.75}
         nodesDraggable={false}
         nodesConnectable={false}
