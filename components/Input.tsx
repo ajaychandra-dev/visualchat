@@ -1,6 +1,7 @@
 "use client";
 
 import { addNodeToFlow, createFlow } from "@/app/api/createNode";
+import { generateMockAIResponse } from "@/app/api/mockAIResponse";
 import { useAppContext } from "@/app/context/context";
 import getLayoutedElements from "@/utils/dagre-layout";
 import clsx from "clsx";
@@ -32,7 +33,7 @@ export default function Input() {
       parentNodeId,
       {
         question: value,
-        answer: "Mock AI response",
+        answer: "MOCK AI RESPONSE: " + generateMockAIResponse(),
       },
     );
 

@@ -7,7 +7,7 @@ export const useFitView = (options?: {
   padding?: { top: number; right: number; bottom: number; left: number };
   maxNodesToFitAll?: number;
 }) => {
-  const { fitView, setCenter, getZoom } = useReactFlow();
+  const { fitView, setCenter } = useReactFlow();
   const { nodes, edges } = useAppContext(); // Get from context directly
 
   const padding = options?.padding ?? {
@@ -32,15 +32,10 @@ export const useFitView = (options?: {
       fitView({ padding });
       return;
     }
-    const currentZoom = getZoom();
 
-    setCenter(
-      selectedNode.position.x + 75, // Adjust based on your node width (nodeWidth / 2)
-      selectedNode.position.y + 75, // Adjust based on your node height (nodeHeight / 2)
-      {
-        zoom: currentZoom,
-        duration: 150,
-      },
-    );
-  }, [nodes, edges, fitView, padding, maxNodesToFitAll, getZoom, setCenter]);
+    setCenter(selectedNode.position.x + 200, selectedNode.position.y + 210, {
+      zoom: 1.75,
+      duration: 150,
+    });
+  }, [nodes, edges, fitView, padding, maxNodesToFitAll]);
 };
