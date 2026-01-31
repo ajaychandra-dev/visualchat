@@ -1,5 +1,5 @@
 import dagre from "dagre";
-import { Edge, Node } from "../api/types";
+import { Edge, Node } from "../app/api/types";
 
 const getLayoutedElements = (
   nodes: Node[],
@@ -14,8 +14,9 @@ const getLayoutedElements = (
 
   dagreGraph.setGraph({
     rankdir: direction,
-    nodesep: 100, // Horizontal spacing between nodes
-    ranksep: 150, // Vertical spacing between ranks
+    nodesep: 20, // Horizontal spacing between nodes
+    ranksep: 0, // Vertical spacing between ranks
+    // ranker: "longest-path",
   });
 
   nodes.forEach((node) => {

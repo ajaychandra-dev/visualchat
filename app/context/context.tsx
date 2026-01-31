@@ -8,9 +8,9 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import getLayoutedElements from "../../utils/dagre-layout";
 import { getFlow } from "../api/createNode";
 import { Node } from "../api/types";
-import getLayoutedElements from "../utils/dagre-layout";
 
 type AppContextType = {
   nodes: Node[];
@@ -28,11 +28,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const flow = getFlow("DUMMY_FLOW");
     if (!flow) return;
+    const nodesWithSelection = flow.nodes.map((node, index) => ({
+      ...node,
+      selected: index === flow.nodes.length - 1, // Select last node
+    }));
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      flow.nodes,
+      nodesWithSelection,
       flow.edges,
     );
-
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
   }, []);
