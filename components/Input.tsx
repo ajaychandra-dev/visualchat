@@ -2,6 +2,7 @@
 
 import { addNodeToFlow, createFlow } from "@/app/api/createNode";
 import { useAppContext } from "@/app/context/context";
+import { getLayoutedElements } from "@/app/utils/layout";
 import clsx from "clsx";
 import { useRef, useState } from "react";
 import ArrowUpIcon from "./icons/ArrowUp";
@@ -10,7 +11,7 @@ export default function Input() {
   const [value, setValue] = useState("");
   const [focus, setFocus] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const { setEdges, setNodes, nodes } = useAppContext();
+  const { setEdges, setNodes, nodes, edges } = useAppContext();
   const [flowId, setFlowId] = useState("");
 
   const handleSubmit = () => {
@@ -18,18 +19,38 @@ export default function Input() {
     if (nodes.length === 0) {
       createdFlowId = createFlow();
       setFlowId(createdFlowId);
-      // setFlowId(createFlow());
-      // flowId = createFlow();
       setValue("");
     }
 
-    const { node, edge } = addNodeToFlow(createdFlowId || flowId, {
-      question: value,
-      answer: "Mock AI response",
-    });
+    const parentNodeId =
+      nodes.find((node) => node.selected)?.id ??
+      nodes[nodes.length - 1]?.id ??
+      null;
 
-    setNodes((prev) => [...prev, node]);
-    if (edge) setEdges((prev) => [...prev, edge]);
+    const { node, edge } = addNodeToFlow(
+      createdFlowId || flowId,
+      parentNodeId,
+      {
+        question: value,
+        answer: "Mock AI response",
+      },
+    );
+
+    // Add new node and edge to current state
+    const updatedNodes = [
+      ...nodes.map((n) => ({ ...n, selected: false })),
+      { ...node, selected: true },
+    ];
+    const updatedEdges = edge ? [...edges, edge] : edges;
+
+    // Apply dagre layout
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      updatedNodes,
+      updatedEdges as any,
+    );
+
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
 
     setValue("");
     if (inputRef.current) {

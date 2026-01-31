@@ -9,7 +9,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import BaseNode from "./BaseNode";
 
 const nodeTypes = {
@@ -20,22 +20,22 @@ export default function Graph() {
   const { fitView } = useReactFlow();
   const { nodes, setNodes, edges } = useAppContext();
 
-  // useEffect(() => {
-  //   if (!nodes.length) return;
+  useEffect(() => {
+    if (!nodes.length) return;
 
-  //   const padding = { top: 0.2, right: 0.2, bottom: 0.75, left: 0.2 };
+    const padding = { top: 0.2, right: 0.2, bottom: 0.75, left: 0.2 };
 
-  //   if (nodes.length <= 3) {
-  //     fitView({ padding });
-  //   } else {
-  //     const lastThreeNodes = nodes.slice(-3);
+    if (nodes.length <= 3) {
+      fitView({ padding });
+    } else {
+      const lastThreeNodes = nodes.slice(-3);
 
-  //     fitView({
-  //       nodes: lastThreeNodes,
-  //       padding,
-  //     });
-  //   }
-  // }, [nodes.length, fitView]);
+      fitView({
+        nodes,
+        padding,
+      });
+    }
+  }, [nodes.length, fitView]);
 
   const onNodesChange = useCallback(
     (changes: any) =>

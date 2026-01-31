@@ -1,64 +1,60 @@
 import { Edge, Flow, Node } from "./types";
+let FLOWID = "DUMMY_FLOW";
 const NODE_GAP = 320;
 
 const generateId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 const loadFlow = (flowId: string): Flow | null => {
-  const raw = localStorage.getItem(flowId);
+  const raw = localStorage.getItem(FLOWID);
   return raw ? JSON.parse(raw) : null;
 };
 
 const saveFlow = (flowId: string, flow: Flow) => {
-  localStorage.setItem(flowId, JSON.stringify(flow));
+  localStorage.setItem(FLOWID, JSON.stringify(flow));
 };
 
 export const getFlow = (flowId: string): Flow | null => {
-  return loadFlow(flowId);
+  return loadFlow(FLOWID);
 };
 
 // POST /flows
 export const createFlow = () => {
   const flowId = generateId();
   const flow: Flow = {
-    id: flowId,
+    id: FLOWID,
     name: flowId,
     nodes: [],
     edges: [],
   };
 
-  saveFlow(flowId, flow);
-  return flowId;
+  saveFlow(FLOWID, flow);
+  return FLOWID;
 };
 
 // POST /flows/:id/nodes
 export const addNodeToFlow = (
   flowId: string,
+  parentNodeId: string | null,
   data: { question: string; answer: string },
-  // parentNodeId: string,
 ): { node: Node; edge: Edge | null } => {
   const flow = loadFlow(flowId);
   if (!flow) throw new Error("Flow not found");
 
-  const currentNodeId = flow.nodes.length + 1;
-  const prevId = currentNodeId - 1;
-  const lastNode = flow.nodes[flow.nodes.length - 1];
+  const currentNodeId = String(Date.now());
+
   const currentNode: Node = {
     id: String(currentNodeId),
     type: "BaseNode",
-    position: {
-      x: lastNode ? lastNode.position.x + NODE_GAP : 0,
-      y: lastNode ? lastNode.position.y : 0,
-    },
+    position: { x: 0, y: 0 },
     data,
   };
   flow.nodes.push(currentNode);
   let currentEdge: Edge | null = null;
-  // if its the first node don't append edge
-  if (flow.nodes.length > 0) {
+  if (parentNodeId) {
     currentEdge = {
-      id: `${prevId}-${currentNodeId}`,
-      source: String(prevId),
+      id: `${parentNodeId}-${currentNodeId}`,
+      source: String(parentNodeId),
       target: String(currentNodeId),
       markerStart: "circle",
       markerEnd: "circle",
@@ -71,42 +67,6 @@ export const addNodeToFlow = (
   saveFlow(flowId, flow);
 
   return { node: currentNode, edge: currentEdge };
-
-  // const nodeId = flow.nodes.length + 1;
-  // const prevId = nodeId - 1;
-  // const lastNode = flow.nodes[flow.nodes.length - 1];
-
-  // const node: Node = {
-  //   id: String(nodeId),
-  //   type: "BaseNode",
-  //   position: {
-  //     x: lastNode ? lastNode.position.x + NODE_GAP : 0,
-  //     y: lastNode ? lastNode.position.y : 0,
-  //   },
-  //   data,
-  // };
-
-  // flow.nodes.push(node);
-
-  // let edge: Edge | undefined;
-
-  // if (prevId >= 1) {
-  //   edge = {
-  //     id: `${prevId}-${nodeId}`,
-  //     source: String(prevId),
-  //     target: String(nodeId),
-  //     markerStart: "circle",
-  //     markerEnd: "circle",
-  //     type: "smoothstep",
-  //     style: { stroke: "#7f7f86", strokeWidth: 1 },
-  //   };
-
-  //   flow.edges.push(edge);
-  // }
-
-  // saveFlow(flow);
-
-  // return { node, edge };
 };
 
 // PATCH /nodes/:id

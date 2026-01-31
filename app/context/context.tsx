@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { getFlow } from "../api/createNode";
 import { Node } from "../api/types";
+import { getLayoutedElements } from "../utils/layout";
 
 type AppContextType = {
   nodes: Node[];
@@ -25,11 +26,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [edges, setEdges] = useState<Edge[]>([]);
 
   useEffect(() => {
-    const flow = getFlow();
+    const flow = getFlow("DUMMY_FLOW");
     if (!flow) return;
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      flow.nodes,
+      flow.edges,
+    );
 
-    setNodes(flow.nodes);
-    setEdges(flow.edges);
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
   }, []);
 
   return (
