@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import { getFlow } from "../api/createNode";
 import { Node } from "../api/types";
-import { getLayoutedElements } from "../utils/layout";
+import getLayoutedElements from "../utils/dagre-layout";
 
 type AppContextType = {
   nodes: Node[];

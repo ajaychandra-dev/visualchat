@@ -2,7 +2,7 @@
 
 import { addNodeToFlow, createFlow } from "@/app/api/createNode";
 import { useAppContext } from "@/app/context/context";
-import { getLayoutedElements } from "@/app/utils/layout";
+import getLayoutedElements from "@/app/utils/dagre-layout";
 import clsx from "clsx";
 import { useRef, useState } from "react";
 import ArrowUpIcon from "./icons/ArrowUp";

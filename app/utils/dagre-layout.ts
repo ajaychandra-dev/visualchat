@@ -1,7 +1,7 @@
 import dagre from "dagre";
 import { Edge, Node } from "../api/types";
 
-export const getLayoutedElements = (
+const getLayoutedElements = (
   nodes: Node[],
   edges: Edge[],
   direction: "TB" | "LR" = "LR",
@@ -41,3 +41,5 @@ export const getLayoutedElements = (
 
   return { nodes: layoutedNodes, edges };
 };
+
+export default getLayoutedElements;
