@@ -11,4 +11,3 @@ Features:
 - Bookmark important nodes
 - 🚀 Scalable for complex workflows
   
-<img width="2560" height="1664" alt="image" src="https://github.com/user-attachments/assets/ca4a4c84-2902-496f-9620-d3d3a05ff152" />
