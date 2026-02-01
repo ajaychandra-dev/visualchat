@@ -7,11 +7,17 @@ import rehypeHighlight from "rehype-highlight";
 import CodeBlock from "./CodeBlock";
 import CopyIcon from "./icons/CopyIcon";
 import DeleteIcon from "./icons/DeleteIcon";
+// import ErrorIcon from "./icons/ErrorIcon";
 import FullScreenIcon from "./icons/FullScreenIcon";
 import RefetchIcon from "./icons/RefetchIcon";
 
 interface BaseNodeProps {
-  data: { question: string; answer: string; isLoading?: boolean };
+  data: {
+    question: string;
+    answer: string;
+    isLoading?: boolean;
+    error?: boolean;
+  };
   selected?: boolean;
 }
 
@@ -105,12 +111,35 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
         </p>
       </div>
 
-      {/* Answer body — skeleton while loading, markdown once ready */}
+      {/* Answer body — skeleton while loading, error if failed, markdown once ready */}
       {data.isLoading && !data.answer ? (
         <div className="p-4 flex flex-col gap-2.5">
           <div className="h-2.5 w-full bg-node-header rounded animate-pulse" />
           <div className="h-2.5 w-11/12 bg-node-header rounded animate-pulse" />
           <div className="h-2.5 w-3/4 bg-node-header rounded animate-pulse" />
+        </div>
+      ) : data.error ? (
+        <div className="p-4">
+          <div className="rounded-md border border-[#6b2d2d] bg-[#2a1a1a] p-3 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              {/* <ErrorIcon /> */}
+              <span className="text-[#f87171] text-xs font-semibold">
+                Error
+              </span>
+            </div>
+            <p className="text-[#f87171] text-xs leading-relaxed opacity-80">
+              {data.error}
+            </p>
+            <button
+              onClick={() => console.log("Retry", data.question)}
+              className="mt-1 self-start flex items-center gap-1.5 px-2.5 py-1 rounded-md 
+              bg-[#3a1f1f] border border-[#6b2d2d] hover:bg-[#4a2525] 
+              transition-colors text-[#f87171] text-xs"
+            >
+              <RefetchIcon className="text-[#f87171]" />
+              Retry
+            </button>
+          </div>
         </div>
       ) : (
         <div
@@ -122,6 +151,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
           <ReactMarkdown
             rehypePlugins={[rehypeHighlight]}
             components={{
+              // Fenced code blocks — delegate to CodeBlock for header + copy
               code({ node, className, children, ...props }) {
                 const isBlock = (node as any)?.parentElement?.tagName === "PRE";
                 const language = (className || "")
@@ -137,6 +167,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
                   );
                 }
 
+                // Inline code
                 return (
                   <code
                     className="bg-node-header text-[#e6db74] px-1.5 py-0.5 rounded text-[10px] font-mono"
@@ -220,13 +251,14 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
                 <strong className="font-semibold text-input">{children}</strong>
               ),
               em: ({ children }) => (
-                <em className="italic text-input">{children}</em>
+                <em className="italic text-placeholder">{children}</em>
               ),
             }}
           >
             {data.answer}
           </ReactMarkdown>
 
+          {/* Blinking cursor while streaming */}
           {data.isLoading && (
             <span className="inline-block w-0.5 h-3.5 bg-placeholder ml-0.5 animate-pulse" />
           )}

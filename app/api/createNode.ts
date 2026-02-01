@@ -85,3 +85,19 @@ export const updateNodeAnswer = (
   node.data.isLoading = false;
   saveFlow(flowId, flow);
 };
+
+// Stores a generated summary on a node in localStorage
+export const updateNodeSummary = (
+  flowId: string,
+  nodeId: string,
+  summary: string,
+) => {
+  const flow = loadFlow(flowId);
+  if (!flow) return;
+
+  const node = flow.nodes.find((n) => n.id === nodeId);
+  if (!node) return;
+
+  node.data.summary = summary;
+  saveFlow(flowId, flow);
+};

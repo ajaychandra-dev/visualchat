@@ -22,4 +22,4 @@ export const PROVIDERS: Provider[] = [
   },
 ];
 
-export const DEFAULT_MODEL = "google/gemma-3-27b-it:free";
+export const DEFAULT_MODEL = "arcee-ai/trinity-large-preview:free";

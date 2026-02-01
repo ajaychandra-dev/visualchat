@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PROVIDERS } from "../providers";
 
 export async function POST(req: Request) {
-  const { question, model } = await req.json();
+  const { messages, model, stream = true } = await req.json();
 
   // Validate that the requested model is in our allowed list
   const isValidModel = PROVIDERS.some((p) => p.id === model);
@@ -27,8 +27,8 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model,
-        messages: [{ role: "user", content: question }],
-        stream: true,
+        messages,
+        stream,
       }),
     },
   );
@@ -41,7 +41,13 @@ export async function POST(req: Request) {
     );
   }
 
-  // Pipe the SSE stream straight back to the client
+  // Non-streaming: return the full JSON response (used for summarization)
+  if (!stream) {
+    const data = await response.json();
+    return NextResponse.json(data);
+  }
+
+  // Streaming: pipe the SSE stream straight back to the client
   return new Response(response.body, {
     headers: {
       "Content-Type": "text/event-stream",
