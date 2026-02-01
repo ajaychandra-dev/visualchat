@@ -17,6 +17,8 @@ type AppContextType = {
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
   edges: Edge[];
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+  refresh: boolean;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -24,10 +26,16 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [refresh, setRefresh] = useState<boolean>(false);
 
   useEffect(() => {
     const flow = getFlow("DUMMY_FLOW");
-    if (!flow) return;
+    if (!flow) {
+      setNodes([]);
+      setEdges([]);
+      setRefresh(false);
+      return;
+    }
     const nodesWithSelection = flow.nodes.map((node, index) => ({
       ...node,
       selected: index === flow.nodes.length - 1, // Select last node
@@ -38,10 +46,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     );
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-  }, []);
+  }, [refresh]);
 
   return (
-    <AppContext.Provider value={{ nodes, setNodes, edges, setEdges }}>
+    <AppContext.Provider
+      value={{ nodes, setNodes, edges, setEdges, refresh, setRefresh }}
+    >
       {children}
     </AppContext.Provider>
   );

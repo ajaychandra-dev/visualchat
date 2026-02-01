@@ -170,7 +170,7 @@ export default function Input() {
   const updateHeight = () => {
     const ta = inputRef.current;
     if (!ta) return;
-    ta.style.height = "1lh";
+    ta.style.height = "1.25lh";
     if (ta.scrollHeight > ta.clientHeight) {
       ta.style.height = "auto";
       ta.style.height = `${ta.scrollHeight}px`;
@@ -214,7 +214,7 @@ export default function Input() {
         onBlur={() => setFocus(false)}
         name="prompt-input"
         className="placeholder-placeholder caret-input text-input w-full focus:outline-none resize-none pr-4 overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
-        style={{ height: "1lh" }}
+        style={{ height: "1.25lh", minHeight: "1.25lh" }}
         placeholder="Type your message"
         onChange={(e) => setValue(e.target.value)}
         value={value}
