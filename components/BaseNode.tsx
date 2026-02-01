@@ -1,18 +1,22 @@
 import { Handle, Position } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import "highlight.js/styles/github-dark.css";
 import { useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import CodeBlock from "./CodeBlock";
 import CopyIcon from "./icons/CopyIcon";
 import DeleteIcon from "./icons/DeleteIcon";
 import FullScreenIcon from "./icons/FullScreenIcon";
 import RefetchIcon from "./icons/RefetchIcon";
 
 interface BaseNodeProps {
-  data: { question: string; answer: string };
+  data: { question: string; answer: string; isLoading?: boolean };
   selected?: boolean;
 }
 
 export default function BaseNode({ data, selected }: BaseNodeProps) {
-  const contentRef = useRef<HTMLParagraphElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const questionRef = useRef<HTMLParagraphElement>(null);
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -50,7 +54,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
 
   return (
     <div
-      className={`relative bg-nodebg rounded-lg max-w-[400px] border transition-colors ${
+      className={`relative bg-nodebg rounded-lg max-w-[400px] min-w-[400px] border transition-colors ${
         selected ? "border-[#9F9F9F]" : "border-transparent"
       }`}
     >
@@ -89,6 +93,8 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
         isConnectable={false}
         style={{ opacity: 0, top: "20px" }}
       />
+
+      {/* Question header */}
       <div className="bg-node-header rounded-t-lg p-3 max-h-[90px] overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent">
         <p
           ref={questionRef}
@@ -98,19 +104,134 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
           {data.question}
         </p>
       </div>
-      <p
-        ref={contentRef}
-        onWheelCapture={handleWheel}
-        className="text-input text-xs p-4 max-h-[350px] overflow-auto 
-        scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
-      >
-        {data.answer.split("\n").map((line, index) => (
-          <span key={index}>
-            {line}
-            <br />
-          </span>
-        ))}
-      </p>
+
+      {/* Answer body — skeleton while loading, markdown once ready */}
+      {data.isLoading && !data.answer ? (
+        <div className="p-4 flex flex-col gap-2.5">
+          <div className="h-2.5 w-full bg-node-header rounded animate-pulse" />
+          <div className="h-2.5 w-11/12 bg-node-header rounded animate-pulse" />
+          <div className="h-2.5 w-3/4 bg-node-header rounded animate-pulse" />
+        </div>
+      ) : (
+        <div
+          ref={contentRef}
+          onWheelCapture={handleWheel}
+          className="text-input text-xs p-4 max-h-[350px] overflow-auto 
+          scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
+        >
+          <ReactMarkdown
+            rehypePlugins={[rehypeHighlight]}
+            components={{
+              code({ node, className, children, ...props }) {
+                const isBlock = (node as any)?.parentElement?.tagName === "PRE";
+                const language = (className || "")
+                  .replace("language-", "")
+                  .replace("hljs", "")
+                  .trim();
+
+                if (isBlock) {
+                  return (
+                    <CodeBlock language={language || undefined}>
+                      {String(children)}
+                    </CodeBlock>
+                  );
+                }
+
+                return (
+                  <code
+                    className="bg-node-header text-[#e6db74] px-1.5 py-0.5 rounded text-[10px] font-mono"
+                    {...props}
+                  >
+                    {children}
+                  </code>
+                );
+              },
+
+              // Strip the <pre> wrapper — CodeBlock already renders its own
+              pre({ children }) {
+                return <>{children}</>;
+              },
+
+              // Headers
+              h1: ({ children }) => (
+                <h1 className="text-base font-bold text-input mt-3 mb-1.5">
+                  {children}
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="text-sm font-semibold text-input mt-2.5 mb-1">
+                  {children}
+                </h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="text-xs font-semibold text-input mt-2 mb-1">
+                  {children}
+                </h3>
+              ),
+
+              // Paragraphs
+              p: ({ children }) => (
+                <p className="text-xs text-input leading-relaxed mb-2">
+                  {children}
+                </p>
+              ),
+
+              // Lists
+              ul: ({ children }) => (
+                <ul className="list-disc list-inside space-y-0.5 ml-2 my-1.5">
+                  {children}
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal list-inside space-y-0.5 ml-2 my-1.5">
+                  {children}
+                </ol>
+              ),
+              li: ({ children }) => (
+                <li className="text-xs text-input leading-relaxed">
+                  {children}
+                </li>
+              ),
+
+              // Blockquote
+              blockquote: ({ children }) => (
+                <blockquote className="border-l-2 border-placeholder pl-3 my-2 text-placeholder italic">
+                  {children}
+                </blockquote>
+              ),
+
+              // Horizontal rule
+              hr: () => <hr className="border-[#3a3a3e] my-2" />,
+
+              // Links
+              a: ({ href, children }) => (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#7eb8da] hover:underline"
+                >
+                  {children}
+                </a>
+              ),
+
+              // Strong / Em
+              strong: ({ children }) => (
+                <strong className="font-semibold text-input">{children}</strong>
+              ),
+              em: ({ children }) => (
+                <em className="italic text-input">{children}</em>
+              ),
+            }}
+          >
+            {data.answer}
+          </ReactMarkdown>
+
+          {data.isLoading && (
+            <span className="inline-block w-0.5 h-3.5 bg-placeholder ml-0.5 animate-pulse" />
+          )}
+        </div>
+      )}
     </div>
   );
 }

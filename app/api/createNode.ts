@@ -1,6 +1,5 @@
 import { Edge, Flow, Node } from "./types";
 let FLOWID = "DUMMY_FLOW";
-const NODE_GAP = 320;
 
 const generateId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -36,7 +35,7 @@ export const createFlow = () => {
 export const addNodeToFlow = (
   flowId: string,
   parentNodeId: string | null,
-  data: { question: string; answer: string },
+  data: { question: string; answer: string; isLoading?: boolean },
 ): { node: Node; edge: Edge | null } => {
   const flow = loadFlow(flowId);
   if (!flow) throw new Error("Flow not found");
@@ -50,6 +49,7 @@ export const addNodeToFlow = (
     data,
   };
   flow.nodes.push(currentNode);
+
   let currentEdge: Edge | null = null;
   if (parentNodeId) {
     currentEdge = {
@@ -69,48 +69,19 @@ export const addNodeToFlow = (
   return { node: currentNode, edge: currentEdge };
 };
 
-// PATCH /nodes/:id
-// export const updateNodePosition = (
-//   nodeId: string,
-//   position: { x: number; y: number },
-// ) => {
-//   const flow = loadFlow();
-//   if (!flow) return;
+// Updates a node's answer in localStorage after streaming completes
+export const updateNodeAnswer = (
+  flowId: string,
+  nodeId: string,
+  answer: string,
+) => {
+  const flow = loadFlow(flowId);
+  if (!flow) return;
 
-//   const node = flow.nodes.find((n) => n.id === nodeId);
-//   if (!node) return;
+  const node = flow.nodes.find((n) => n.id === nodeId);
+  if (!node) return;
 
-//   node.position = position;
-
-//   saveFlow(flow);
-// };
-export const STEPS = [
-  {
-    question: "What can you do?",
-    answer: "I help with learning, coding, and problem-solving.",
-  },
-  {
-    question: "I want to learn programming",
-    answer: "Great! We’ll start with the basics.",
-  },
-  {
-    question: "Which language should I pick?",
-    answer: "Python or JavaScript are great choices.",
-  },
-  {
-    question: "Let’s pick Python",
-    answer: "Nice choice. Python is beginner-friendly.",
-  },
-  {
-    question: "What should I learn first?",
-    answer: "Variables, loops, and functions.",
-  },
-  {
-    question: "How do I practice?",
-    answer: "Build small projects and practice daily.",
-  },
-  {
-    question: "Any resources?",
-    answer: "freeCodeCamp, docs, and hands-on practice.",
-  },
-];
+  node.data.answer = answer;
+  node.data.isLoading = false;
+  saveFlow(flowId, flow);
+};
