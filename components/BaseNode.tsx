@@ -7,7 +7,7 @@ import FullScreenIcon from "./icons/FullScreenIcon";
 import RefetchIcon from "./icons/RefetchIcon";
 
 interface BaseNodeProps {
-  data: { question: string; answer: string };
+  data: { question: string; answer: string; isLoading?: boolean };
   selected?: boolean;
 }
 
@@ -50,7 +50,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
 
   return (
     <div
-      className={`relative bg-nodebg rounded-lg max-w-[400px] border transition-colors ${
+      className={`relative bg-nodebg rounded-lg max-w-[400px] min-w-[400px] border transition-colors ${
         selected ? "border-[#9F9F9F]" : "border-transparent"
       }`}
     >
@@ -89,6 +89,8 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
         isConnectable={false}
         style={{ opacity: 0, top: "20px" }}
       />
+
+      {/* Question header */}
       <div className="bg-node-header rounded-t-lg p-3 max-h-[90px] overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent">
         <p
           ref={questionRef}
@@ -98,19 +100,32 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
           {data.question}
         </p>
       </div>
-      <p
-        ref={contentRef}
-        onWheelCapture={handleWheel}
-        className="text-input text-xs p-4 max-h-[350px] overflow-auto 
-        scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
-      >
-        {data.answer.split("\n").map((line, index) => (
-          <span key={index}>
-            {line}
-            <br />
-          </span>
-        ))}
-      </p>
+
+      {data.isLoading && !data.answer ? (
+        <div className="p-4 flex flex-col gap-2.5">
+          <div className="h-2.5 w-full bg-node-header rounded animate-pulse" />
+          <div className="h-2.5 w-11/12 bg-node-header rounded animate-pulse" />
+          <div className="h-2.5 w-3/4 bg-node-header rounded animate-pulse" />
+        </div>
+      ) : (
+        <p
+          ref={contentRef}
+          onWheelCapture={handleWheel}
+          className="text-input text-xs p-4 max-h-[350px] overflow-auto 
+          scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
+        >
+          {data.answer.split("\n").map((line, index) => (
+            <span key={index}>
+              {line}
+              <br />
+            </span>
+          ))}
+          {/* Blinking cursor while streaming */}
+          {data.isLoading && (
+            <span className="inline-block w-0.5 h-3.5 bg-placeholder ml-0.5 animate-pulse" />
+          )}
+        </p>
+      )}
     </div>
   );
 }
