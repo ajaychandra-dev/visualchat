@@ -60,7 +60,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
 
   return (
     <div
-      className={`relative bg-nodebg rounded-lg max-w-[400px] min-width-[400px] border transition-colors ${
+      className={`relative bg-nodebg rounded-lg max-w-[400px] min-w-[400px] border transition-colors ${
         selected ? "border-[#9F9F9F]" : "border-transparent"
       }`}
     >
