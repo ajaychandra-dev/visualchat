@@ -36,6 +36,25 @@ export default function Input() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // Walks from a node up to the root via edges, returns ancestors in chronological order (root first)
+  const getConversationHistory = (startNodeId: string | null) => {
+    const path: typeof nodes = [];
+    let currentId = startNodeId;
+
+    while (currentId) {
+      const node = nodes.find((n) => n.id === currentId);
+      if (node) path.unshift(node); // prepend so root ends up first
+      const parentEdge = edges.find((e) => e.target === currentId);
+      currentId = parentEdge?.source ?? null;
+    }
+
+    // Convert the node path into an OpenRouter-compatible messages array
+    return path.flatMap((node) => [
+      { role: "user" as const, content: node.data.question },
+      { role: "assistant" as const, content: node.data.answer },
+    ]);
+  };
+
   const handleSubmit = async () => {
     if (!value.trim()) return;
 
@@ -78,15 +97,19 @@ export default function Input() {
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
 
+    // Build full conversation: ancestors up to parent + current question
+    const history = getConversationHistory(parentNodeId);
+    const messages = [
+      ...history,
+      { role: "user" as const, content: currentQuestion },
+    ];
+
     // Stream response from OpenRouter via our API route
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question: currentQuestion,
-          model: selectedModel,
-        }),
+        body: JSON.stringify({ messages, model: selectedModel }),
       });
 
       if (!res.ok || !res.body) {
@@ -154,14 +177,15 @@ export default function Input() {
                 ...n,
                 data: {
                   ...n.data,
-                  answer: `Error: ${errorMessage}`,
+                  answer: "",
+                  error: errorMessage,
                   isLoading: false,
                 },
               }
             : n,
         ),
       );
-      updateNodeAnswer(createdFlowId, node.id, `Error: ${errorMessage}`);
+      updateNodeAnswer(createdFlowId, node.id, "");
     }
 
     inputRef.current?.focus();
@@ -170,7 +194,7 @@ export default function Input() {
   const updateHeight = () => {
     const ta = inputRef.current;
     if (!ta) return;
-    ta.style.height = "1.25lh";
+    ta.style.height = "1lh";
     if (ta.scrollHeight > ta.clientHeight) {
       ta.style.height = "auto";
       ta.style.height = `${ta.scrollHeight}px`;
@@ -214,7 +238,7 @@ export default function Input() {
         onBlur={() => setFocus(false)}
         name="prompt-input"
         className="placeholder-placeholder caret-input text-input w-full focus:outline-none resize-none pr-4 overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent"
-        style={{ height: "1.25lh", minHeight: "1.25lh" }}
+        style={{ height: "1lh" }}
         placeholder="Type your message"
         onChange={(e) => setValue(e.target.value)}
         value={value}

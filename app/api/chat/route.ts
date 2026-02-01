@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PROVIDERS } from "../providers";
 
 export async function POST(req: Request) {
-  const { question, model } = await req.json();
+  const { messages, model } = await req.json();
 
   // Validate that the requested model is in our allowed list
   const isValidModel = PROVIDERS.some((p) => p.id === model);
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model,
-        messages: [{ role: "user", content: question }],
+        messages,
         stream: true,
       }),
     },

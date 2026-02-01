@@ -6,6 +6,7 @@ export type Node = {
     question: string;
     answer: string;
     isLoading?: boolean;
+    error?: string;
   };
   selected?: boolean;
   measured?: { width?: number; height?: number };
