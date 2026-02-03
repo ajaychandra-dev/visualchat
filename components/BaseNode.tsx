@@ -257,13 +257,12 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
           >
             {data.answer}
           </ReactMarkdown>
-
-          {/* Blinking cursor while streaming */}
           {data.isLoading && (
-            <span className="inline-block w-0.5 h-3.5 bg-placeholder ml-0.5 animate-pulse" />
+              <span className="inline-block w-0.5 h-3.5 bg-placeholder animate-pulse align-middle" />
           )}
         </div>
       )}
     </div>
   );
 }
+
