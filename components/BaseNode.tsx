@@ -1,13 +1,13 @@
 import { Handle, Position } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import "highlight.js/styles/github-dark.css";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import CodeBlock from "./CodeBlock";
+import FullScreenModal from "./FullScreenModal";
 import CopyIcon from "./icons/CopyIcon";
 import DeleteIcon from "./icons/DeleteIcon";
-// import ErrorIcon from "./icons/ErrorIcon";
 import FullScreenIcon from "./icons/FullScreenIcon";
 import RefetchIcon from "./icons/RefetchIcon";
 
@@ -24,6 +24,8 @@ interface BaseNodeProps {
 export default function BaseNode({ data, selected }: BaseNodeProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const questionRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [showFullScreen, setShowFullScreen] = useState(false);
 
   const handleWheel = (e: React.WheelEvent) => {
     if (e.metaKey || e.ctrlKey) return;
@@ -48,7 +50,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
       id: "3",
       label: "Full Screen",
       src: <FullScreenIcon />,
-      onClick: () => console.log("Full Screen"),
+      onClick: () => setShowFullScreen(true),
     },
     {
       id: "4",
@@ -101,14 +103,20 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
       />
 
       {/* Question header */}
-      <div className="bg-node-header rounded-t-lg p-3 max-h-[90px] overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent">
-        <p
-          ref={questionRef}
-          onWheelCapture={handleWheel}
-          className="text-input font-bold text-xs"
-        >
-          {data.question}
-        </p>
+      <div className="bg-node-header rounded-t-lg py-2">
+        <div className="px-3 max-h-[90px] overflow-auto scrollbar-thin scrollbar-thumb-node-selected scrollbar-track-transparent">
+          <p
+            ref={questionRef}
+            onWheelCapture={handleWheel}
+            onClick={() => setExpanded(!expanded)}
+            className={`text-input font-bold text-xs cursor-pointer hover:text-white transition-colors break-words ${
+              expanded ? "" : "line-clamp-2"
+            }`}
+            title={!expanded ? "Click to expand" : "Click to collapse"}
+          >
+            {data.question}
+          </p>
+        </div>
       </div>
 
       {/* Answer body — skeleton while loading, error if failed, markdown once ready */}
@@ -257,13 +265,19 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
           >
             {data.answer}
           </ReactMarkdown>
-
-          {/* Blinking cursor while streaming */}
           {data.isLoading && (
-            <span className="inline-block w-0.5 h-3.5 bg-placeholder ml-0.5 animate-pulse" />
+              <span className="inline-block w-0.5 h-3.5 bg-placeholder animate-pulse align-middle" />
           )}
         </div>
       )}
+
+      <FullScreenModal
+        isOpen={showFullScreen}
+        onClose={() => setShowFullScreen(false)}
+        question={data.question}
+        answer={data.answer}
+      />
     </div>
   );
 }
+
