@@ -1,7 +1,7 @@
 import { Handle, Position } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import "highlight.js/styles/github-dark.css";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import CodeBlock from "./CodeBlock";
@@ -23,6 +23,7 @@ interface BaseNodeProps {
 export default function BaseNode({ data, selected }: BaseNodeProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const questionRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const handleWheel = (e: React.WheelEvent) => {
     if (e.metaKey || e.ctrlKey) return;
@@ -100,14 +101,20 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
       />
 
       {/* Question header */}
-      <div className="bg-node-header rounded-t-lg p-3 max-h-[90px] overflow-auto scrollbar-thin scrollbar-thumb-node-header scrollbar-track-transparent">
-        <p
-          ref={questionRef}
-          onWheelCapture={handleWheel}
-          className="text-input font-bold text-xs"
-        >
-          {data.question}
-        </p>
+      <div className="bg-node-header rounded-t-lg py-2">
+        <div className="px-3 max-h-[90px] overflow-auto scrollbar-thin scrollbar-thumb-node-selected scrollbar-track-transparent">
+          <p
+            ref={questionRef}
+            onWheelCapture={handleWheel}
+            onClick={() => setExpanded(!expanded)}
+            className={`text-input font-bold text-xs cursor-pointer hover:text-white transition-colors break-words ${
+              expanded ? "" : "line-clamp-2"
+            }`}
+            title={!expanded ? "Click to expand" : "Click to collapse"}
+          >
+            {data.question}
+          </p>
+        </div>
       </div>
 
       {/* Answer body — skeleton while loading, error if failed, markdown once ready */}
