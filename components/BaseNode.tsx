@@ -7,7 +7,6 @@ import rehypeHighlight from "rehype-highlight";
 import CodeBlock from "./CodeBlock";
 import CopyIcon from "./icons/CopyIcon";
 import DeleteIcon from "./icons/DeleteIcon";
-// import ErrorIcon from "./icons/ErrorIcon";
 import FullScreenIcon from "./icons/FullScreenIcon";
 import RefetchIcon from "./icons/RefetchIcon";
 
