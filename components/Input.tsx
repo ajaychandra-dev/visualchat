@@ -66,7 +66,7 @@ export default function Input() {
   return (
     <form
       className={clsx(
-        "w-[600px] max-h-[238px] self-center mb-12 bg-nodebg rounded-lg p-3 flex flex-col gap-3 border flex-shrink-0 pointer-events-auto",
+        "w-[600px] max-h-[238px] self-center mb-12 bg-[#232326]/80 backdrop-blur-xl rounded-lg p-3 flex flex-col gap-3 border flex-shrink-0 pointer-events-auto shadow-2xl",
         focus ? "border-inputfocus" : "border-transparent"
       )}
       onSubmit={(e) => {
