@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import CodeBlock from "./CodeBlock";
+import FullScreenModal from "./FullScreenModal";
 import CopyIcon from "./icons/CopyIcon";
 import DeleteIcon from "./icons/DeleteIcon";
 import FullScreenIcon from "./icons/FullScreenIcon";
@@ -24,6 +25,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const questionRef = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
+  const [showFullScreen, setShowFullScreen] = useState(false);
 
   const handleWheel = (e: React.WheelEvent) => {
     if (e.metaKey || e.ctrlKey) return;
@@ -48,7 +50,7 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
       id: "3",
       label: "Full Screen",
       src: <FullScreenIcon />,
-      onClick: () => console.log("Full Screen"),
+      onClick: () => setShowFullScreen(true),
     },
     {
       id: "4",
@@ -268,6 +270,13 @@ export default function BaseNode({ data, selected }: BaseNodeProps) {
           )}
         </div>
       )}
+
+      <FullScreenModal
+        isOpen={showFullScreen}
+        onClose={() => setShowFullScreen(false)}
+        question={data.question}
+        answer={data.answer}
+      />
     </div>
   );
 }

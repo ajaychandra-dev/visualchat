@@ -33,8 +33,8 @@ export const useFitView = (options?: {
       return;
     }
 
-    setCenter(selectedNode.position.x + 200, selectedNode.position.y + 210, {
-      zoom: 1.75,
+    setCenter(selectedNode.position.x + 200, selectedNode.position.y + 250, {
+      zoom: 1.5,
       duration: 150,
     });
   }, [nodes, edges, fitView, padding, maxNodesToFitAll]);
